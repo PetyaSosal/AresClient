@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ares Client | Продвинутый Utility Mod</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050507;
+            --primary: #a30000; /* Бордовый из логотипа */
+            --primary-glow: rgba(163, 0, 0, 0.6);
+            --particle-color: rgba(255, 50, 50, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --text-main: #ffffff;
+            --text-muted: #a0a0ab;
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            outline: none; /* Убираем стандартные обводки */
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            cursor: default;
+        }
+        /* ----- Интерактивный Фон (Слежение за курсором) ----- */
+        #cursor-bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            pointer-events: none; /* Чтобы не мешал кликам */
+        }
+        /* Красный "опечаток" */
+        #cursor-blob {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(163, 0, 0, 0.15) 0%, rgba(163, 0, 0, 0.05) 40%, rgba(163, 0, 0, 0) 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0; /* Изначально скрыт, пока не двинется мышь */
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            transition: opacity 1s ease; /* Плавное появление при первом движении */
+            z-index: -1;
+        }
+       
+        /* Класс для отображения опечатка (добавляется JS) */
+        #cursor-blob.active {
+            opacity: 1;
+        }
+        /* Стили для мелких партиклов шлейфа */
+        .cursor-particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background-color: var(--particle-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 1;
+            animation: particle-fade-out 0.8s ease-out forwards;
+        }
+        @keyframes particle-fade-out {
+            0% { transform: scale(1) translateY(0); opacity: 1; }
+            100% { transform: scale(0.2) translateY(-20px); opacity: 0; }
+        }
+        /* ---------------------------------------------------- */
+        /* Общие классы стекла */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            transition: var(--transition);
+        }
+        .glass-panel:hover {
+            border-color: rgba(163, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(163, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+        /* Навигация */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(5, 5, 7, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .logo-container {
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff 0%, #ffaaaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(255, 50, 50, 0.3));
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            opacity: 0.7;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #ff4d4d;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 5px #ff4d4d;
+        }
+        .nav-links a:hover {
+            opacity: 1;
+            color: #ff4d4d;
+        }
+       
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        /* Главный экран (Hero) */
+        section {
+            padding: 100px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative; /* Для правильного z-index */
+        }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 120px;
+        }
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .hero-title {
+            font-size: 5.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, #ffaaaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 25px rgba(255, 50, 50, 0.25));
+            line-height: 1.1;
+        }
+        .hero-desc {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 15px;
+        }
+       
+        .hero-downloads {
+            font-size: 0.9rem;
+            color: #ff4d4d;
+            margin-bottom: 40px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255, 50, 50, 0.3);
+        }
+        /* Элементы управления скачиванием */
+        .download-controls {
+            display: flex;
+            gap: 15px;
+            align-items: stretch;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-download {
+            background: linear-gradient(45deg, var(--primary), #d90000);
+            color: white;
+            border: none;
+            padding: 0 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(163, 0, 0, 0.4);
+            transition: var(--transition);
+        }
+        .btn-download:hover {
+            box-shadow: 0 5px 35px rgba(255, 50, 50, 0.6);
+            transform: translateY(-3px);
+        }
+        .version-select-wrapper {
+            position: relative;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+       
+        .version-select-wrapper:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 18px 55px 18px 25px;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+        }
+        select option {
+            background: #0a0a0e;
+            color: white;
+            padding: 10px;
+        }
+        .select-arrow {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+       
+        .version-select-wrapper:hover .select-arrow {
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+        /* Блоки Фичей */
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 60px;
+            color: white;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+       
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary);
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        .feature-card {
+            padding: 50px 35px;
+            text-align: center;
+        }
+        .feature-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 25px;
+            background: rgba(163, 0, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff4d4d;
+            box-shadow: 0 0 20px rgba(163, 0, 0, 0.15);
+            border: 1px solid rgba(163, 0, 0, 0.2);
+        }
+        .feature-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        /* FAQ */
+        .faq-container {
+            max-width: 850px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .faq-item {
+            overflow: hidden;
+        }
+        .faq-question {
+            width: 100%;
+            text-align: left;
+            padding: 22px 30px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            outline: none;
+        }
+        .faq-icon {
+            transition: transform 0.3s ease, color 0.3s ease;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+        }
+        .faq-item:hover .faq-icon {
+            color: #ff4d4d;
+        }
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+            color: #ff4d4d;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
+            padding: 0 30px;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+        .faq-item.active .faq-answer {
+            padding-bottom: 25px;
+        }
+       
+        .faq-answer code {
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ffaaaa;
+            font-family: monospace;
+        }
+        /* ----- Разработчики ----- */
+        .devs-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        /* Сделали карточку ссылкой */
+        .dev-card {
+            width: 280px;
+            padding: 35px 25px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none; /* Убираем подчеркивание */
+            position: relative; /* Для позиционирования предпросмотра */
+            cursor: pointer;
+        }
+        .dev-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            box-shadow: 0 0 25px rgba(163, 0, 0, 0.25);
+            border: 2px solid rgba(163, 0, 0, 0.5);
+            overflow: hidden;
+            background-color: #111;
+        }
+        .dev-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .dev-name {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: white;
+            transition: var(--transition);
+        }
+       
+        .dev-card:hover .dev-name {
+            color: #ff4d4d;
+            text-shadow: 0 0 10px rgba(255, 50, 50, 0.3);
+        }
+        .dev-role {
+            color: #ffaaaa;
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        /* Стили для предпросмотра профиля GitHub */
+        .dev-preview {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            width: 300px;
+            padding: 20px;
+            background: rgba(10, 10, 15, 0.95); /* Более темный фон для предпросмотра */
+            border: 1px solid rgba(255, 50, 50, 0.4);
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(163, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 100;
+            pointer-events: none; /* Чтобы окно не "мерцало" под курсором */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        /* Стеклянный "указатель" (треугольник сверху) */
+        .dev-preview::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 12px;
+            height: 12px;
+            background: rgba(10, 10, 15, 0.95);
+            border-top: 1px solid rgba(255, 50, 50, 0.4);
+            border-left: 1px solid rgba(255, 50, 50, 0.4);
+        }
+        /* Анимация при наведении на карточку разработчика */
+        .dev-card:hover .dev-preview {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(15px);
+        }
+        .preview-stats {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: white;
+            font-weight: 600;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+       
+        .preview-stats svg {
+            color: #ff4d4d;
+        }
+        .preview-bio {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            text-align: center;
+        }
+        /* Футер */
+        footer {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--glass-border);
+            margin-top: 60px;
+            font-size: 0.9rem;
+            position: relative;
+        }
+        /* Анимации при скролле */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 3.8rem; }
+            .nav-links { display: none; } /* Скрываем меню на мобильных */
+            .logo-container { font-size: 1.4rem; }
+            #cursor-blob { width: 400px; height: 400px; } /* Уменьшаем опечаток */
+           
+            /* На мобильных скрываем предпросмотр, так как ховера нет */
+            .dev-preview { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ----- Контейнер интерактива фона ----- -->
+    <div id="cursor-bg-container">
+        <!-- Тот самый красный опечаток -->
+        <div id="cursor-blob"></div>
+    </div>
+    <!-- -------------------------------------- -->
+    <!-- Навигация -->
+    <nav>
+        <div class="logo-container">
+            Ares Client
+        </div>
+        <div class="nav-links">
+            <a href="#features">О чите</a>
+            <a href="#faq">FAQ</a>
+            <a href="#download">Скачать</a>
+        </div>
+    </nav>
+    <!-- Главный экран -->
+    <section class="hero" id="download">
+        <div class="reveal">
+            <p class="hero-subtitle">Это</p>
+            <h1 class="hero-title">Ares Client</h1>
+            <p class="hero-desc">Продвинутый Utility Mod для Minecraft. Доминируй на серверах с мощными модулями и непревзойденной оптимизацией.</p>
+            <p class="hero-downloads">Более 206,000 загрузок и счетчик продолжает расти</p>
+           
+            <div class="download-controls">
+                <a href="#" class="btn-download" id="download-btn">Скачать сейчас</a>
+                <div class="version-select-wrapper">
+                    <select id="version-selector">
+                        <option value="#download-1.21.5">1.21.5 Fabric</option>
+                    </select>
+                    <div class="select-arrow">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Фичи -->
+    <section id="features">
+        <div class="features-grid reveal">
+            <div class="feature-card glass-panel">
+                <div class="feature-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+                </div>
+                <h3>Бой</h3>
+                <p>Доминируйте в PvP с нашими уникальными модулями, разработанными для максимальной эффективности.</p>
+            </div>
+           
+            <div class="feature-card glass-panel">
+                <div class="feature-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </div>
+                <h3>Рендер</h3>
+                <p>Видьте всё благодаря передовым визуальным модулям. Полная кастомизация ESP и Tracers.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <div class="feature-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+                </div>
+                <h3>Перемещение</h3>
+                <p>Обходите античиты с улучшенными модулями перемещения (Flight, Speed, Step).</p>
+            </div>
+        </div>
+    </section>
+    <!-- FAQ -->
+    <section id="faq">
+        <h2 class="section-title reveal">FAQ</h2>
+        <div class="faq-container reveal">
+           
+            <div class="faq-item glass-panel">
+                <button class="faq-question">
+                    Как открыть меню чита (GUI)?
+                    <span class="faq-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+                </button>
+                <div class="faq-answer">
+                    <p>Клавиша по умолчанию для открытия меню — точка с запятой <code>;</code> (на русской раскладке это буква «Ж»).</p>
+                </div>
+            </div>
+            <div class="faq-item glass-panel">
+                <button class="faq-question">
+                    Как изменить кнопку открытия меню (Bind)?
+                    <span class="faq-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+                </button>
+                <div class="faq-answer">
+                    <p>Измените настройку привязки в самом модуле ClickGUI (в категории player), либо напишите в чат команду <code>-bind clickgui (ваша клавиша)</code>.</p>
+                </div>
+            </div>
+            <div class="faq-item glass-panel">
+                <button class="faq-question">
+                    Какой префикс для команд в чате по умолчанию?
+                    <span class="faq-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+                </button>
+                <div class="faq-answer">
+                    <p>Префикс по умолчанию — тире <code>-</code>. Вы можете вводить команды прямо в игровой чат.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Разработчики -->
+    <section id="developers">
+        <h2 class="section-title reveal">Разработчики</h2>
+        <div class="devs-grid reveal">
+            <!-- Карточка SMAILL (Ссылка на GitHub) -->
+            <a href="https://github.com/SMAILLNN" target="_blank" class="dev-card glass-panel" id="dev-smaill">
+                <div class="dev-avatar">
+                    <!-- Заглушка, пока загружается API -->
+                    <img src="https://github.com/SMAILLNN.png" alt="SMAILL">
+                </div>
+                <h3 class="dev-name">Загрузка...</h3>
+                <p class="dev-role">Вор, негодяй и скелетон сити</p>
+               
+                <!-- Окно предпросмотра (Появляется при наведении) -->
+                <div class="dev-preview">
+                    <div class="preview-stats">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                        <span class="repo-count">...</span> репозиториев
+                    </div>
+                    <p class="preview-bio">Подгрузка информации из GitHub профиля...</p>
+                </div>
+            </a>
+           
+            <!-- Карточка PetyaSosal (Ссылка на GitHub) -->
+            <a href="https://github.com/PetyaSosal" target="_blank" class="dev-card glass-panel" id="dev-petya">
+                <div class="dev-avatar">
+                    <!-- Заглушка, пока загружается API -->
+                    <img src="https://github.com/PetyaSosal.png" alt="PetyaSosal">
+                </div>
+                <h3 class="dev-name">Загрузка...</h3>
+                <p class="dev-role">Дурачок и фембой, футфетешист</p>
+               
+                <!-- Окно предпросмотра (Появляется при наведении) -->
+                <div class="dev-preview">
+                    <div class="preview-stats">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                        <span class="repo-count">...</span> репозиториев
+                    </div>
+                    <p class="preview-bio">Подгрузка информации из GitHub профиля...</p>
+                </div>
+            </a>
+        </div>
+    </section>
+    <!-- Подвал -->
+    <footer>
+        <p>&copy; 2026 Ares Client. Все права защищены. Разработано для доминации.</p>
+    </footer>
+    <!-- Скрипты -->
+    <script>
+        // ----- ЛОГИКА ФОНА И КУРСОРНЫХ ЧАСТИЦ -----
+        const container = document.getElementById('cursor-bg-container');
+        const blob = document.getElementById('cursor-blob');
+       
+        let lastX = 0;
+        let lastY = 0;
+        let blobActive = false;
+        document.addEventListener('mousemove', (e) => {
+            if (!blobActive) {
+                blob.classList.add('active');
+                blobActive = true;
+            }
+            blob.style.left = e.clientX + 'px';
+            blob.style.top = e.clientY + 'px';
+            if (Math.abs(e.clientX - lastX) > 8 || Math.abs(e.clientY - lastY) > 8) {
+                createParticle(e.clientX, e.clientY);
+                lastX = e.clientX;
+                lastY = e.clientY;
+            }
+        });
+       
+        document.addEventListener('mouseleave', () => {
+            blob.classList.remove('active');
+            blobActive = false;
+        });
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.classList.add('cursor-particle');
+            const offsetX = (Math.random() - 0.5) * 6;
+            const offsetY = (Math.random() - 0.5) * 6;
+            particle.style.left = (x + offsetX) + 'px';
+            particle.style.top = (y + offsetY) + 'px';
+            container.appendChild(particle);
+            setTimeout(() => { particle.remove(); }, 800);
+        }
+        // ---------------------------------------------------
+        // ----- ИНТЕГРАЦИЯ GITHUB API ДЛЯ РАЗРАБОТЧИКОВ -----
+        async function loadGithubProfile(username, elementId) {
+            try {
+                // Делаем запрос к публичному API GitHub
+                const response = await fetch(`https://api.github.com/users/${username}`);
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Rate limit exceeded');
+                    }
+                    throw new Error('Ошибка сети');
+                }
+                const data = await response.json();
+               
+                // Находим элементы карточки
+                const card = document.getElementById(elementId);
+                const avatarImg = card.querySelector('.dev-avatar img');
+                const nameLabel = card.querySelector('.dev-name');
+                const bioLabel = card.querySelector('.preview-bio');
+                const repoLabel = card.querySelector('.repo-count');
+               
+                // Обновляем данные
+                avatarImg.src = data.avatar_url;
+                nameLabel.textContent = data.login; // Никнейм с GitHub (логин из профиля)
+               
+                // Вставляем описание или текст заглушку
+                if (data.bio && data.bio.trim() !== '') {
+                    bioLabel.textContent = data.bio;
+                } else {
+                    bioLabel.textContent = "Таинственный разработчик. Описание профиля скрыто во мраке GitHub.";
+                }
+               
+                // Количество проектов
+                repoLabel.textContent = data.public_repos;
+            } catch (error) {
+                console.error('Ошибка загрузки данных с GitHub для пользователя', username, error);
+                
+                const card = document.getElementById(elementId);
+                const nameLabel = card.querySelector('.dev-name');
+                const bioLabel = card.querySelector('.preview-bio');
+                
+                // В случае ошибки (включая rate limit) показываем никнейм из логина
+                nameLabel.textContent = username;
+                
+                if (error.message.includes('Rate limit') || error.message.includes('403')) {
+                    bioLabel.textContent = "Не удалось загрузить данные с GitHub (лимит запросов). Попробуйте обновить страницу позже.";
+                } else {
+                    bioLabel.textContent = "Не удалось загрузить данные с GitHub.";
+                }
+            }
+        }
+        // Запускаем подгрузку профилей
+        loadGithubProfile('SMAILLNN', 'dev-smaill');
+        loadGithubProfile('PetyaSosal', 'dev-petya');
+        // ---------------------------------------------------
+        // Анимация появления элементов при скролле (Intersection Observer)
+        const revealElements = document.querySelectorAll('.reveal');
+       
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+        const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
+       
+        revealElements.forEach(el => {
+            revealObserver.observe(el);
+        });
+        // Инициализация при загрузке (чтобы показать верхние элементы сразу)
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.reveal').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight) {
+                    el.classList.add('active');
+                }
+            });
+        });
+        // Логика аккордеона для FAQ
+        const faqQuestions = document.querySelectorAll('.faq-question');
+       
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const answer = question.nextElementSibling;
+                const isActive = item.classList.contains('active');
+                // Закрываем все остальные открытые вопросы
+                document.querySelectorAll('.faq-item').forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                        otherItem.querySelector('.faq-answer').style.maxHeight = null;
+                    }
+                });
+                // Переключаем текущий
+                if (!isActive) {
+                    item.classList.add('active');
+                    answer.style.maxHeight = answer.scrollHeight + "px";
+                } else {
+                    item.classList.remove('active');
+                    answer.style.maxHeight = null;
+                }
+            });
+        });
+        // Логика кнопки скачивания
+        document.getElementById('download-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const selector = document.getElementById('version-selector');
+            const selectedVersionText = selector.options[selector.selectedIndex].text;
+           
+            alert('Запуск скачивания для версии: ' + selectedVersionText + '\n\nЗдесь будет прямая ссылка, когда вы её добавите.');
+        });
+    </script>
+</body>
+</html>
