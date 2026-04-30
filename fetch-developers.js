@@ -1,101 +1,49 @@
-// Скрипт для заполнения developers.json с GitHub API
-// Запустите это в Node.js или используйте на GitHub Actions
+// fetch-developers.js
+document.addEventListener('DOMContentLoaded', loadDevelopers);
 
-const https = require('https');
-const fs = require('fs');
+async function loadDevelopers() {
+    const developers = [
+        { username: "SMAILLNN",   displayName: "zero1null",   role: "Вор, негодяй и скелетон сити" },
+        { username: "PetyaSosal", displayName: "Pettanko",    role: "Дурачок и фембой, футфетешист" }
+    ];
 
-const DEVELOPERS = ['SMAILLNN', 'PetyaSosal'];
+    const grid = document.querySelector('.devs-grid');
+    if (!grid) return;
 
-async function fetchGithubUser(username) {
-  return new Promise((resolve, reject) => {
-    https.get(`https://api.github.com/users/${username}`, {
-      headers: { 'User-Agent': 'Ares-Client-Site' }
-    }, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
+    grid.innerHTML = '';   // очищаем старые карточки
+
+    for (const dev of developers) {
         try {
-          resolve(JSON.parse(data));
+            const res = await fetch(`https://api.github.com/users/${dev.username}`);
+            if (!res.ok) throw new Error();
+            
+            const user = await res.json();
+
+            const cardHTML = `
+                <a href="https://github.com/${dev.username}" target="_blank" class="dev-card glass-panel">
+                    <div class="dev-avatar">
+                        <img src="${user.avatar_url}" alt="${dev.displayName}">
+                    </div>
+                    <h3 class="dev-name">${dev.displayName}</h3>
+                    <p class="dev-role">${dev.role}</p>
+                    
+                    <div class="dev-preview">
+                        <div class="preview-stats">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                            </svg>
+                            <span class="repo-count">${user.public_repos}</span> репозиториев
+                        </div>
+                        <p class="preview-bio">${user.bio ? user.bio : 'Таинственный разработчик. Описание профиля скрыто во мраке GitHub.'}</p>
+                    </div>
+                </a>
+            `;
+
+            grid.innerHTML += cardHTML;
+
         } catch (e) {
-          reject(e);
+            console.error(`Не удалось загрузить данные для ${dev.username}`);
+            // Можно добавить fallback-карточку, если хочешь
         }
-      });
-    }).on('error', reject);
-  });
-}
-
-async function fetchUserRepositories(username) {
-  return new Promise((resolve, reject) => {
-    https.get(`https://api.github.com/users/${username}/repos?per_page=100&type=owner`, {
-      headers: { 'User-Agent': 'Ares-Client-Site' }
-    }, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          const repos = JSON.parse(data);
-          resolve(repos.map(repo => ({
-            name: repo.name,
-            description: repo.description,
-            url: repo.html_url,
-            stars: repo.stargazers_count,
-            language: repo.language
-          })));
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }).on('error', reject);
-  });
-}
-
-async function generateDevelopersJson() {
-  try {
-    console.log('Получаю информацию с GitHub API...');
-    
-    const developersData = {
-      developers: [],
-      updated: new Date().toISOString()
-    };
-
-    const displayNames = {
-      'SMAILLNN': 'zero1null',
-      'PetyaSosal': 'Pettanko'
-    };
-
-    const roles = {
-      'SMAILLNN': 'Вор, негодяй и скелетон сити',
-      'PetyaSosal': 'Дурачок и фембой, футфетешист'
-    };
-
-    for (const username of DEVELOPERS) {
-      console.log(`Загружаю данные для ${username}...`);
-      
-      const userInfo = await fetchGithubUser(username);
-      const repositories = await fetchUserRepositories(username);
-
-      developersData.developers.push({
-        username: username,
-        displayName: displayNames[username],
-        role: roles[username],
-        github: `https://github.com/${username}`,
-        avatar: userInfo.avatar_url,
-        bio: userInfo.bio || '',
-        public_repos: userInfo.public_repos,
-        repositories: repositories
-      });
-
-      console.log(`✓ ${username} - ${repositories.length} репозиториев`);
     }
-
-    fs.writeFileSync('developers.json', JSON.stringify(developersData, null, 2));
-    console.log('\n✓ developers.json успешно создан!');
-    console.log(JSON.stringify(developersData, null, 2));
-
-  } catch (error) {
-    console.error('Ошибка при загрузке данных:', error.message);
-    process.exit(1);
-  }
 }
-
-generateDevelopersJson();
