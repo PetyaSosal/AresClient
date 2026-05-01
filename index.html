@@ -527,6 +527,435 @@
             /* На мобильных скрываем предпросмотр, так как ховера нет */
             .dev-preview { display: none; }
         }
+
+        /* ===== GOTHIC FONT ===== */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=UnifrakturMaguntia&display=swap');
+
+        /* ===== THEME TOGGLE BUTTON ===== */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 4px;
+            cursor: pointer;
+            margin-right: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .theme-btn {
+            padding: 7px 18px;
+            border-radius: 24px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.4);
+            position: relative;
+            z-index: 1;
+        }
+        .theme-btn.active-red {
+            background: linear-gradient(135deg, #a30000, #d90000);
+            color: #fff;
+            box-shadow: 0 0 14px rgba(200,0,0,0.6);
+        }
+        .theme-btn.active-black {
+            background: linear-gradient(135deg, #0d0d0d, #1a0a00);
+            color: #fff;
+            box-shadow: 0 0 14px rgba(50,50,50,0.6);
+        }
+        .theme-btn.active-gothic {
+            background: linear-gradient(135deg, #1a0e00, #2d1a00);
+            color: #c8a97e;
+            box-shadow: 0 0 16px rgba(139,90,43,0.4), inset 0 0 8px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* ===== BLACK THEME OVERRIDES ===== */
+        body.black-theme {
+            cursor: none !important;
+            background-color: #000 !important;
+        }
+        body.black-theme * {
+            cursor: none !important;
+        }
+
+        /* Custom cursor */
+        #custom-cursor {
+            display: none;
+            position: fixed;
+            width: 18px;
+            height: 18px;
+            background: #ffffff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 12px rgba(255,255,255,0.9), 0 0 30px rgba(255,255,255,0.4);
+            transition: transform 0.05s linear;
+            mix-blend-mode: difference;
+        }
+        body.black-theme #custom-cursor {
+            display: block;
+        }
+
+        /* Lightning shadow trail */
+        .lightning-trail {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99998;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(180,180,255,0.5) 40%, transparent 70%);
+            transform: translate(-50%, -50%);
+            animation: lightning-fade 0.15s ease-out forwards;
+        }
+        @keyframes lightning-fade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
+        }
+
+        body.black-theme nav {
+            background: rgba(0,0,0,0.92) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+        }
+        body.black-theme .logo-container {
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            filter: drop-shadow(0 0 12px rgba(255,255,255,0.2)) !important;
+        }
+        body.black-theme .nav-links a {
+            color: rgba(255,255,255,0.6) !important;
+        }
+        body.black-theme .nav-links a:hover {
+            color: #fff !important;
+            opacity: 1 !important;
+        }
+        body.black-theme .nav-links a::after {
+            background-color: #ffffff !important;
+            box-shadow: 0 0 8px rgba(255,255,255,0.6) !important;
+        }
+        body.black-theme .hero-title {
+            background: linear-gradient(135deg, #fff, #999) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)) !important;
+        }
+        body.black-theme .hero-downloads {
+            color: #aaaaaa !important;
+            text-shadow: 0 0 10px rgba(255,255,255,0.1) !important;
+        }
+        body.black-theme .btn-download {
+            background: linear-gradient(45deg, #222, #444) !important;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6), 0 0 15px rgba(255,255,255,0.08) !important;
+        }
+        body.black-theme .btn-download:hover {
+            box-shadow: 0 5px 35px rgba(255,255,255,0.2) !important;
+        }
+        body.black-theme .glass-panel {
+            background: rgba(255,255,255,0.02) !important;
+            border: 1px solid rgba(255,255,255,0.07) !important;
+        }
+        body.black-theme .glass-panel:hover {
+            border-color: rgba(255,255,255,0.18) !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9), 0 0 20px rgba(255,255,255,0.06) !important;
+        }
+        body.black-theme .section-title::after {
+            background: #ffffff !important;
+            box-shadow: 0 0 10px rgba(255,255,255,0.4) !important;
+        }
+        body.black-theme .feature-icon {
+            background: rgba(255,255,255,0.04) !important;
+            color: #aaaaaa !important;
+            box-shadow: 0 0 20px rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        body.black-theme .faq-item:hover .faq-icon,
+        body.black-theme .faq-item.active .faq-icon {
+            color: #ffffff !important;
+        }
+        body.black-theme .faq-answer code {
+            color: #cccccc !important;
+            background: rgba(255,255,255,0.07) !important;
+        }
+        body.black-theme .dev-avatar {
+            box-shadow: 0 0 25px rgba(255,255,255,0.07) !important;
+            border: 2px solid rgba(255,255,255,0.15) !important;
+        }
+        body.black-theme .dev-role {
+            color: #888888 !important;
+        }
+        body.black-theme .dev-card:hover .dev-name {
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3) !important;
+        }
+        body.black-theme .dev-preview {
+            background: rgba(5,5,5,0.97) !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.95), 0 0 30px rgba(255,255,255,0.05) !important;
+        }
+        body.black-theme .dev-preview::before {
+            background: rgba(5,5,5,0.97) !important;
+            border-top: 1px solid rgba(255,255,255,0.12) !important;
+            border-left: 1px solid rgba(255,255,255,0.12) !important;
+        }
+        body.black-theme .preview-stats svg {
+            color: #aaaaaa !important;
+        }
+        body.black-theme footer {
+            border-top: 1px solid rgba(255,255,255,0.06) !important;
+        }
+        body.black-theme #cursor-blob {
+            background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, rgba(200,200,200,0.015) 40%, rgba(255,255,255,0) 70%) !important;
+        }
+        body.black-theme .cursor-particle {
+            background-color: rgba(255,255,255,0.5) !important;
+        }
+
+        /* ===== GOTHIC/AMBER THEME OVERRIDES ===== */
+        body.gothic-theme {
+            cursor: none !important;
+            background-color: #05030a !important;
+            background-image:
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.012'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") !important;
+        }
+        body.gothic-theme * {
+            cursor: none !important;
+        }
+
+        body.gothic-theme .hero-title,
+        body.gothic-theme .logo-container,
+        body.gothic-theme .section-title {
+            font-family: 'Cinzel', serif !important;
+            letter-spacing: 3px !important;
+        }
+        body.gothic-theme .hero-subtitle {
+            font-family: 'Cinzel', serif !important;
+            letter-spacing: 6px !important;
+            color: #7a5c3a !important;
+        }
+
+        #custom-cursor-gothic {
+            display: none;
+            position: fixed;
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px rgba(255,255,255,1), 0 0 25px rgba(255,255,255,0.5), 0 0 50px rgba(200,160,100,0.2);
+        }
+        body.gothic-theme #custom-cursor-gothic {
+            display: block;
+        }
+
+        .smoke-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(30,15,5,0.5) 0%, rgba(10,5,0,0.25) 50%, transparent 80%);
+            filter: blur(25px);
+            animation: smoke-rise linear forwards;
+        }
+        @keyframes smoke-rise {
+            0%   { opacity: 0.8; transform: translateY(0) scale(1) rotate(0deg); }
+            30%  { opacity: 0.5; transform: translateY(-80px) scale(1.4) rotate(15deg); }
+            70%  { opacity: 0.2; transform: translateY(-200px) scale(2.2) rotate(40deg); }
+            100% { opacity: 0; transform: translateY(-350px) scale(3.5) rotate(70deg); }
+        }
+
+        #dark-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            background:
+                radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.75) 100%),
+                radial-gradient(ellipse at top, rgba(30,10,0,0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at bottom, rgba(5,0,0,0.5) 0%, transparent 70%);
+            animation: candle-flicker 4s ease-in-out infinite;
+        }
+        body.gothic-theme #dark-overlay {
+            display: block;
+        }
+
+        @keyframes candle-flicker {
+            0%, 100% { opacity: 0.7; transform: scaleY(1) scaleX(1); }
+            25%       { opacity: 0.9; transform: scaleY(1.05) scaleX(0.97); }
+            50%       { opacity: 0.6; transform: scaleY(0.95) scaleX(1.03); }
+            75%       { opacity: 0.85; transform: scaleY(1.02) scaleX(0.98); }
+        }
+
+        body.gothic-theme nav {
+            background: rgba(3,2,8,0.95) !important;
+            border-bottom: 1px solid rgba(139,90,43,0.2) !important;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.9) !important;
+        }
+        body.gothic-theme .logo-container {
+            background: linear-gradient(135deg, #e8d5b0 0%, #c8a97e 50%, #8b5a2b 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            filter: drop-shadow(0 0 15px rgba(139,90,43,0.5)) !important;
+        }
+        body.gothic-theme .nav-links a {
+            color: rgba(200,169,126,0.6) !important;
+            font-family: 'Cinzel', serif !important;
+            font-size: 0.85rem !important;
+            letter-spacing: 2px !important;
+        }
+        body.gothic-theme .nav-links a:hover {
+            color: #e8d5b0 !important;
+            opacity: 1 !important;
+            text-shadow: 0 0 12px rgba(200,160,80,0.6) !important;
+        }
+        body.gothic-theme .nav-links a::after {
+            background: linear-gradient(90deg, #8b5a2b, #c8a97e) !important;
+            box-shadow: 0 0 10px rgba(139,90,43,0.8) !important;
+        }
+
+        body.gothic-theme .hero-title {
+            background: linear-gradient(135deg, #fff 0%, #e8d5b0 40%, #c8a97e 70%, #8b5a2b 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            filter: drop-shadow(0 0 40px rgba(139,90,43,0.3)) !important;
+            text-shadow: none !important;
+        }
+        body.gothic-theme .hero-downloads {
+            color: #7a5c3a !important;
+            text-shadow: 0 0 15px rgba(139,90,43,0.4) !important;
+            font-family: 'Cinzel', serif !important;
+            letter-spacing: 2px !important;
+        }
+
+        body.gothic-theme .btn-download {
+            background: linear-gradient(135deg, #1a0e00, #2d1a00) !important;
+            border: 1px solid rgba(139,90,43,0.4) !important;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8), 0 0 20px rgba(139,90,43,0.15), inset 0 1px 0 rgba(200,169,126,0.1) !important;
+            color: #c8a97e !important;
+            font-family: 'Cinzel', serif !important;
+            letter-spacing: 2px !important;
+        }
+        body.gothic-theme .btn-download:hover {
+            box-shadow: 0 5px 40px rgba(0,0,0,0.9), 0 0 35px rgba(139,90,43,0.35) !important;
+            border-color: rgba(200,169,126,0.5) !important;
+        }
+
+        body.gothic-theme .glass-panel {
+            background: linear-gradient(145deg, rgba(10,6,2,0.8), rgba(5,3,1,0.9)) !important;
+            border: 1px solid rgba(139,90,43,0.12) !important;
+        }
+        body.gothic-theme .glass-panel:hover {
+            border-color: rgba(139,90,43,0.35) !important;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.95), 0 0 25px rgba(139,90,43,0.12) !important;
+        }
+
+        body.gothic-theme .section-title {
+            color: #c8a97e !important;
+            text-shadow: 0 0 30px rgba(139,90,43,0.3) !important;
+        }
+        body.gothic-theme .section-title::after {
+            background: linear-gradient(90deg, transparent, #8b5a2b, transparent) !important;
+            width: 120px !important;
+            box-shadow: 0 0 15px rgba(139,90,43,0.6) !important;
+        }
+
+        body.gothic-theme .feature-icon {
+            background: radial-gradient(circle, rgba(30,15,0,0.9), rgba(10,5,0,0.95)) !important;
+            color: #8b5a2b !important;
+            box-shadow: 0 0 25px rgba(0,0,0,0.9), inset 0 0 15px rgba(139,90,43,0.08) !important;
+            border: 1px solid rgba(139,90,43,0.2) !important;
+        }
+        body.gothic-theme .feature-card h3 {
+            color: #c8a97e !important;
+            font-family: 'Cinzel', serif !important;
+            letter-spacing: 2px !important;
+        }
+        body.gothic-theme .feature-card p {
+            color: #5a4a3a !important;
+        }
+
+        body.gothic-theme .faq-question {
+            color: #c8a97e !important;
+            font-family: 'Cinzel', serif !important;
+            letter-spacing: 1px !important;
+            font-size: 1rem !important;
+        }
+        body.gothic-theme .faq-item:hover .faq-icon,
+        body.gothic-theme .faq-item.active .faq-icon {
+            color: #c8a97e !important;
+        }
+        body.gothic-theme .faq-answer {
+            color: #6a5540 !important;
+        }
+        body.gothic-theme .faq-answer code {
+            color: #c8a97e !important;
+            background: rgba(139,90,43,0.1) !important;
+            border: 1px solid rgba(139,90,43,0.2) !important;
+        }
+
+        body.gothic-theme .dev-avatar {
+            box-shadow: 0 0 30px rgba(0,0,0,0.9), 0 0 15px rgba(139,90,43,0.1) !important;
+            border: 2px solid rgba(139,90,43,0.3) !important;
+            filter: grayscale(40%) sepia(20%) !important;
+        }
+        body.gothic-theme .dev-name {
+            font-family: 'Cinzel', serif !important;
+            color: #c8a97e !important;
+            letter-spacing: 2px !important;
+        }
+        body.gothic-theme .dev-role {
+            color: #4a3828 !important;
+            font-style: italic !important;
+        }
+        body.gothic-theme .dev-card:hover .dev-name {
+            color: #e8d5b0 !important;
+            text-shadow: 0 0 15px rgba(200,169,126,0.4) !important;
+        }
+        body.gothic-theme .dev-preview {
+            background: rgba(5,3,1,0.98) !important;
+            border: 1px solid rgba(139,90,43,0.25) !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.99), 0 0 30px rgba(139,90,43,0.08) !important;
+        }
+        body.gothic-theme .dev-preview::before {
+            background: rgba(5,3,1,0.98) !important;
+            border-top: 1px solid rgba(139,90,43,0.25) !important;
+            border-left: 1px solid rgba(139,90,43,0.25) !important;
+        }
+        body.gothic-theme .preview-stats svg {
+            color: #8b5a2b !important;
+        }
+        body.gothic-theme .preview-stats {
+            color: #c8a97e !important;
+            border-bottom: 1px solid rgba(139,90,43,0.15) !important;
+        }
+        body.gothic-theme .preview-bio {
+            color: #4a3828 !important;
+            font-style: italic !important;
+        }
+
+        body.gothic-theme footer {
+            border-top: 1px solid rgba(139,90,43,0.15) !important;
+            color: #3a2a1a !important;
+            font-family: 'Cinzel', serif !important;
+            letter-spacing: 1px !important;
+        }
+
+        body.gothic-theme #cursor-blob {
+            background: radial-gradient(circle, rgba(139,90,43,0.06) 0%, rgba(80,40,10,0.02) 40%, transparent 70%) !important;
+        }
+        body.gothic-theme .cursor-particle {
+            background-color: rgba(200,169,126,0.6) !important;
+        }
     </style>
 </head>
 <body>
@@ -536,15 +965,28 @@
         <div id="cursor-blob"></div>
     </div>
     <!-- -------------------------------------- -->
+    <!-- Dark vignette overlay -->
+    <div id="dark-overlay"></div>
+    <!-- Custom cursor for black mode -->
+    <div id="custom-cursor"></div>
+    <!-- Custom cursor for gothic mode -->
+    <div id="custom-cursor-gothic"></div>
     <!-- Навигация -->
     <nav>
         <div class="logo-container">
             Ares Client
         </div>
-        <div class="nav-links">
-            <a href="#features">О чите</a>
-            <a href="#faq">FAQ</a>
-            <a href="#download">Скачать</a>
+        <div style="display:flex;align-items:center;">
+            <div class="theme-toggle" id="themeToggle">
+                <button class="theme-btn active-red" id="btnRed" onclick="setTheme('red')">Red</button>
+                <button class="theme-btn" id="btnBlack" onclick="setTheme('black')">Black</button>
+                <button class="theme-btn" id="btnGothic" onclick="setTheme('gothic')">Gothic</button>
+            </div>
+            <div class="nav-links">
+                <a href="#features">О чите</a>
+                <a href="#faq">FAQ</a>
+                <a href="#download">Скачать</a>
+            </div>
         </div>
     </nav>
     <!-- Главный экран -->
@@ -559,7 +1001,11 @@
                 <a href="#" class="btn-download" id="download-btn">Скачать сейчас</a>
                 <div class="version-select-wrapper">
                     <select id="version-selector">
-                        <option value="#download-1.21.5">1.21.5 Fabric</option>
+                        <option value="https://ru-minecraft.ru/engine/download.php?id=109248">1.12.2 Forge</option>
+                        <option value="https://ru-minecraft.ru/engine/download.php?id=109249">1.16.5 Fabric</option>
+                        <option value="https://ru-minecraft.ru/engine/download.php?id=109250">1.17.1 Fabric</option>
+                        <option value="https://ru-minecraft.ru/engine/download.php?id=109251">1.18.1 Fabric</option>
+                        <option value="https://cdnn21.img.ria.ru/images/07e6/01/15/1768967776_0:147:3030:1851_1920x0_80_0_0_b5e7e60652d19a0db1709f8c5785a1df.jpg">1.21.5 Fabric</option>
                     </select>
                     <div class="select-arrow">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -790,6 +1236,7 @@
             e.preventDefault();
             const selector = document.getElementById('version-selector');
             const selectedVersionText = selector.options[selector.selectedIndex].text;
+            const downloadLink = selector.value;
             
             // Увеличиваем счётчик нажатий
             const currentClicks = parseInt(localStorage.getItem('downloadClicks')) || 0;
@@ -798,8 +1245,57 @@
             
             // Обновляем отображение счётчика
             initDownloadCounter();
-           
-            alert('Запуск скачивания для версии: ' + selectedVersionText + '\n\nЗдесь будет прямая ссылка, когда вы её добавите.');
+            
+            // Переходим по ссылке скачивания
+            window.location.href = downloadLink;
+        });
+
+        // ----- СИСТЕМА ПЕРЕКЛЮЧЕНИЯ ТЕМ -----
+        let currentTheme = 'red';
+        
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('selectedTheme', theme);
+            
+            // Удаляем все старые классы темы
+            document.body.classList.remove('black-theme', 'gothic-theme');
+            
+            // Обновляем кнопки
+            document.getElementById('btnRed').classList.remove('active-red');
+            document.getElementById('btnBlack').classList.remove('active-black');
+            document.getElementById('btnGothic').classList.remove('active-gothic');
+            
+            if (theme === 'red') {
+                document.getElementById('btnRed').classList.add('active-red');
+            } else if (theme === 'black') {
+                document.body.classList.add('black-theme');
+                document.getElementById('btnBlack').classList.add('active-black');
+            } else if (theme === 'gothic') {
+                document.body.classList.add('gothic-theme');
+                document.getElementById('btnGothic').classList.add('active-gothic');
+            }
+        }
+        
+        // Инициализируем тему при загрузке
+        const savedTheme = localStorage.getItem('selectedTheme') || 'red';
+        setTheme(savedTheme);
+        
+        // ----- КУРСОР ДЛЯ BLACK THEME -----
+        const customCursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            if (document.body.classList.contains('black-theme')) {
+                customCursor.style.left = e.clientX + 'px';
+                customCursor.style.top = e.clientY + 'px';
+            }
+        });
+        
+        // ----- КУРСОР ДЛЯ GOTHIC THEME -----
+        const customCursorGothic = document.getElementById('custom-cursor-gothic');
+        document.addEventListener('mousemove', (e) => {
+            if (document.body.classList.contains('gothic-theme')) {
+                customCursorGothic.style.left = e.clientX + 'px';
+                customCursorGothic.style.top = e.clientY + 'px';
+            }
         });
     </script>
 
