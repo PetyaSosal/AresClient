@@ -1,7 +1,7 @@
 # Ares Client - Русское комьюнити
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Загрузок-более%20206%20000-brightgreen" alt="Скачиваний">
+  <img src="https://img.shields.io/badge/Загрузок-более%20200%20000-brightgreen" alt="Скачиваний">
 </p>
 
 **Русскоязычное комьюнити**, поддерживающее и продолжающее развитие **Ares Client** - мощного utility чита для Minecraft.
